@@ -7,16 +7,22 @@ import 'dart:convert';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'MapSelection.dart';
 
 
 
 class NewPostPage extends StatefulWidget {
   @override
   _NewPostPageState createState() => _NewPostPageState();
+  final LatLng? pickedLocation;
+
+
+  NewPostPage({this.pickedLocation});
 
 }
 
 class _NewPostPageState extends State<NewPostPage> {
+
 
   GoogleMapController? mapController;
   LatLng? selectedLocation;
@@ -35,6 +41,52 @@ class _NewPostPageState extends State<NewPostPage> {
   TextEditingController _carColorController = TextEditingController();
   TextEditingController _availableSeatsController = TextEditingController();
   String? _selectedGender;
+  void _openMapDialog() async {
+    final LatLng? result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Location'),
+          content: Container(
+            width: double.infinity,
+            height: 300,
+            child: MapScreen(currentLocation: selectedLocation),
+          ),
+        );
+      },
+
+    );
+
+    if (result != null) {
+      setState(() {
+        _locationController.text='Lat: ${result.latitude} , Lon: ${result.longitude}';
+        //selectedLocation = result;
+      });
+    }
+  }
+  void _openMapDialog2() async {
+    final LatLng? result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Location'),
+          content: Container(
+            width: double.infinity,
+            height: 300,
+            child: MapScreen(currentLocation: selectedLocation),
+          ),
+        );
+      },
+
+    );
+
+    if (result != null) {
+      setState(() {
+        _destinationController.text='Lat: ${result.latitude} , Lon: ${result.longitude}';
+        //selectedLocation = result;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -102,9 +154,11 @@ class _NewPostPageState extends State<NewPostPage> {
                           _direction = false;
                           if (_direction == false) {
                             _locationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
-                            _destinationController.text = '';
+                            _destinationController.text='';
+
                           } else {
-                            _locationController.text = '';
+                            _locationController.text='';
+
                             _destinationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
                           }
                         });
@@ -118,9 +172,11 @@ class _NewPostPageState extends State<NewPostPage> {
                           _direction = true;
                           if (_direction == false) {
                             _locationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
-                            _destinationController.text = '';
+                            _destinationController.text='';
+
                           } else {
-                            _locationController.text = '';
+                            _locationController.text='';
+
                             _destinationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
                           }
                         });
@@ -301,13 +357,11 @@ class _NewPostPageState extends State<NewPostPage> {
                   hintText: 'Enter your location',
                 ),
               ),
-              if(_direction==true)
+              if (_direction==true)
                 ElevatedButton(
                   child: Text('Fetch Current Location'),
-                  onPressed: () {
-                    _getCurrentLocation();
-                  }
-              ),
+                  onPressed: _openMapDialog,
+                ),
               SizedBox(height: 16),
               Text(
                 'Destination',
@@ -319,6 +373,11 @@ class _NewPostPageState extends State<NewPostPage> {
                   hintText: 'Enter your destination',
                 ),
               ),
+              if (_direction==false)
+                ElevatedButton(
+                  child: Text('Set Destination'),
+                  onPressed: _openMapDialog2,
+                ),
               SizedBox(height: 16),
               SizedBox(height: 16),
               ElevatedButton(
@@ -463,36 +522,7 @@ class _NewPostPageState extends State<NewPostPage> {
     }
     }
   }
-    // Example: Creating a post object
-//     Post post = Post(
-//       postType: _postType == true ? 'Offer a ride' : 'Request a ride',
-//       direction: _direction == false ? 'From MEU' : 'To MEU',
-//       gender: _selectedGender!,
-//       dateTime: _selectedDateTime!,
-//       smoker: _isSmokerSelected,
-//       nonSmoker: _isNonSmokerSelected,
-//       eatingDrinking: _isEatingSelected,
-//       noEatingDrinking: _isDrinkingSelected,
-//       location: _locationController.text,
-//       destination: _destinationController.text,
-//       carCompany: _carCompanyController.text,
-//       carModel: _carModelController.text,
-//       platesNumber: _platesNumberController.text,
-//       carColor: _carColorController.text,
-//       availableSeats: int.parse(_availableSeatsController.text),
-//     );
-//
-//     // Pass the post to the Board class
-//     Board.addPost(post);
-//
-//     // Show the squared-box with highlights based on the post details
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => Board(post: post),
-//       ),
-//     );
-//   }
+
  }
 
 class _getLocation {
@@ -585,6 +615,96 @@ class Board extends StatelessWidget {
               child: Text('See More'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// select location
+class MapScreen extends StatefulWidget {
+  final LatLng? currentLocation;
+
+  MapScreen({this.currentLocation});
+
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  GoogleMapController? mapController;
+  LatLng? pickedLocation;
+  Set<Marker> markers = {};
+  LatLng? currentLocation;
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _onMapTap(LatLng tappedLocation) {
+    setState(() {
+      pickedLocation = tappedLocation;
+      markers = {
+        Marker(
+          markerId: MarkerId('pickedLocation'),
+          position: tappedLocation,
+        ),
+      };
+    });
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    setState(() {
+      currentLocation = LatLng(position.latitude, position.longitude);
+    });
+    if (mapController != null) {
+      mapController!.animateCamera(
+        CameraUpdate.newLatLng(currentLocation!),
+      );
+    }
+  }
+
+  void _navigateToNewPostPage() {
+    if (pickedLocation != null) {
+      Navigator.pop(context, pickedLocation);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Map Screen'),
+      ),
+      body: GoogleMap(
+        onMapCreated: _onMapCreated,
+        onTap: _onMapTap,
+        markers: markers,
+        myLocationEnabled: true,
+        initialCameraPosition: CameraPosition(
+          target: widget.currentLocation ?? LatLng(0, 0),
+          zoom: 10.0,
+        ),
+      ),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(left: 16.0),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              SizedBox(height: 16.0),
+              FloatingActionButton(
+                onPressed: _navigateToNewPostPage,
+                child: Icon(Icons.check),
+              ),
+            ],
+          ),
         ),
       ),
     );

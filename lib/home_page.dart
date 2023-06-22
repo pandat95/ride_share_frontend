@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:testhomepage003/NewRidePage.dart';
-// import 'package:testhomepage003/LoginPage.dart';
-// import 'EditProfilePage.dart';
+ import 'package:last_chance/NewRidePage.dart';
+
 import 'Login.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
@@ -84,6 +83,10 @@ class HomePage extends StatelessWidget {
                     label: Text('New Ride'),
                     onPressed: () {
                       // TODO: Implement onPressed for New Ride button
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => NewRidePage()),
+                      );
                     },
                   ),
                 ),
