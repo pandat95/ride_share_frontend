@@ -359,7 +359,7 @@ class _NewPostPageState extends State<NewPostPage> {
               ),
               if (_direction==true)
                 ElevatedButton(
-                  child: Text('Fetch Current Location'),
+                  child: Text('Set Pick-Up Location'),
                   onPressed: _openMapDialog,
                 ),
               SizedBox(height: 16),

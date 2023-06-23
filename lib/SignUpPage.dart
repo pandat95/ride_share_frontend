@@ -24,7 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
   Future<void> _finishSignup() async {
-    String url = 'http://127.0.0.1:8000/api/register'; // Replace with your Laravel login endpoint
+    String url = 'http://192.168.1.77:8000/api/register'; // Replace with your Laravel login endpoint
 
     Map<String, String> headers = {
       'Content-Type': 'application/json',

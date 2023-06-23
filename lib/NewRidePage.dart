@@ -13,7 +13,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'dart:async';
-
+import 'RideRequests.dart';
+import 'file_utils.dart';
+import 'RideOffers.dart';
 
 class PlateNumberInputFormatter extends TextInputFormatter {
   @override
@@ -54,12 +56,59 @@ class NewRidePage extends StatefulWidget {
 
 
 }
+class RideRequest {
+  final int id;
+  // Add other properties and methods of the RideRequest class
+
+  RideRequest({required this.id});
+}
+
+
+class RideOffer {
+  final int id;
+  // Add other properties and methods of the RideRequest class
+
+  RideOffer({required this.id});
+}
+
 
 class _NewRidePageState extends State<NewRidePage> {
+
+
+  List<RideRequest> _createRideRequestsList(dynamic responseData) {
+    List<RideRequest> rideRequests = [];
+
+    for (var request in responseData) {
+      RideRequest rideRequest = RideRequest(id: request['id']);
+      // Add other properties to the rideRequest object as needed
+      rideRequests.add(rideRequest);
+    }
+
+    return rideRequests;
+  }
+
+
+
+  List<RideOffer> _createRideOffersList(dynamic responseData) {
+    List<RideOffer> rideOffers = [];
+
+    for (var offer in responseData) {
+      RideOffer rideOffer = RideOffer(id: offer['id']);
+      // Add other properties to the rideRequest object as needed
+      rideOffers.add(rideOffer);
+    }
+
+    return rideOffers;
+  }
+
+
+
+
   bool _isSmokerSelected = false;
   bool _isNonSmokerSelected = false;
   bool _isEatingSelected = false;
   bool _isDrinkingSelected = false;
+  bool? _direction;
   String OfferGender = 'Prefered Passenger Gender';
   String RequestGender = 'Prefered Driver Gender';
   TextEditingController _lat = TextEditingController();
@@ -161,12 +210,12 @@ class _NewRidePageState extends State<NewRidePage> {
 
   bool isFormComplete() {
     if (typeOfRide == 'request' &&
-        selectYourDestination != null &&
+
         genderType != null &&
         _isSmokerSelected != null && _isEatingSelected != null) {
       return true;
     } else if (typeOfRide == 'offer' &&
-        selectYourDestination != null &&
+
         genderType != null &&
         _isSmokerSelected != null &&
         carType != null &&
@@ -182,7 +231,7 @@ class _NewRidePageState extends State<NewRidePage> {
   void resetForm() {
     setState(() {
       typeOfRide = null;
-      selectYourDestination = null;
+
       genderType = null;
       // smokerDriver = null;
       // smokerPassenger = null;
@@ -261,34 +310,45 @@ class _NewRidePageState extends State<NewRidePage> {
                       spacing: 8.0,
                       children: [
                         FilterChip(
-                          label: Text('To MEU'),
-                          selected: selectYourDestination == 'toMeu',
-                          onSelected: (selected) {
+                          label: Text('From MEU'),
+                          selected: _direction == false,
+                          onSelected: (bool selected) {
                             setState(() {
-                              selectYourDestination = selected ? 'toMeu' : null;
-                              _locationController.text = '';
-                              _destinationController.text =
-                              'Middle East University';
+                              _direction = false;
+                              if (_direction == false) {
+                                _locationController.text = 'Middle East University';
+                                _destinationController.text='';
+
+                              } else {
+                                _locationController.text='';
+
+                                _destinationController.text = 'Middle East University';
+                              }
                             });
                           },
                         ),
                         FilterChip(
-                          label: Text('From MEU'),
-                          selected: selectYourDestination == 'fromMeu',
-                          onSelected: (selected) {
+                          label: Text('To MEU'),
+                          selected: _direction == true,
+                          onSelected: (bool selected) {
                             setState(() {
-                              selectYourDestination =
-                              selected ? 'fromMeu' : null;
-                              _locationController.text =
-                              'Middle East University';
-                              _destinationController.text = '';
+                              _direction = true;
+                              if (_direction == false) {
+                                _locationController.text = 'Middle East University';
+                                _destinationController.text='';
+
+                              } else {
+                                _locationController.text='';
+
+                                _destinationController.text = 'Middle East University';
+                              }
                             });
                           },
                         ),
                       ],
                     )
                     ,
-                    if (selectYourDestination != null && isPreferencesVisible)
+                    if (_direction != null && isPreferencesVisible)
                       SizedBox(height: 15,),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,7 +503,7 @@ class _NewRidePageState extends State<NewRidePage> {
                                 hintText: 'Enter your location',
                               ),
                             ),
-                            if(selectYourDestination == 'toMeu')
+                            if(_direction == true)
                               ElevatedButton(
                                 child: Text('Set Pick-Up Location'),
                                 onPressed: _openMapDialog,
@@ -460,7 +520,7 @@ class _NewRidePageState extends State<NewRidePage> {
                                 hintText: 'Enter your destination',
                               ),
                             ),
-                            if(selectYourDestination == 'fromMeu')
+                            if(_direction == false)
                               ElevatedButton(
                                 child: Text('Set Destination'),
                                 onPressed: _openMapDialog2,
@@ -488,34 +548,45 @@ class _NewRidePageState extends State<NewRidePage> {
                       spacing: 8.0,
                       children: [
                         FilterChip(
-                          label: Text('To MEU'),
-                          selected: selectYourDestination == 'toMeu',
-                          onSelected: (selected) {
+                          label: Text('From MEU'),
+                          selected: _direction == false,
+                          onSelected: (bool selected) {
                             setState(() {
-                              selectYourDestination = selected ? 'toMeu' : null;
-                              _locationController.text = '';
-                              _destinationController.text =
-                              'Middle East University';
+                              _direction = false;
+                              if (_direction == false) {
+                                _locationController.text = 'Middle East University';
+                                _destinationController.text='';
+
+                              } else {
+                                _locationController.text='';
+
+                                _destinationController.text = 'Middle East University';
+                              }
                             });
                           },
                         ),
                         FilterChip(
-                          label: Text('From MEU'),
-                          selected: selectYourDestination == 'fromMeu',
-                          onSelected: (selected) {
+                          label: Text('To MEU'),
+                          selected: _direction == true,
+                          onSelected: (bool selected) {
                             setState(() {
-                              selectYourDestination =
-                              selected ? 'fromMeu' : null;
-                              _locationController.text =
-                              'Middle East University';
-                              _destinationController.text = '';
+                              _direction = true;
+                              if (_direction == false) {
+                                _locationController.text = 'Middle East University';
+                                _destinationController.text='';
+
+                              } else {
+                                _locationController.text='';
+
+                                _destinationController.text = 'Middle East University';
+                              }
                             });
                           },
                         ),
                       ],
                     ),
                     SizedBox(height: 20),
-                    if (selectYourDestination != null && isRulesVisible)
+                    if (_direction != null && isRulesVisible)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -794,7 +865,7 @@ class _NewRidePageState extends State<NewRidePage> {
                                   hintText: 'Enter your location',
                                 ),
                               ),
-                              if(selectYourDestination == 'toMeu')
+                              if(_direction == true)
                                 ElevatedButton(
                                   child: Text('Set Pick-Up Location'),
                                   onPressed: _openMapDialog,
@@ -811,7 +882,7 @@ class _NewRidePageState extends State<NewRidePage> {
                                   hintText: 'Enter your destination',
                                 ),
                               ),
-                              if(selectYourDestination == 'fromMeu')
+                              if(_direction == false)
                                 ElevatedButton(
                                   child: Text('Set Destination'),
                                   onPressed: _openMapDialog2,
@@ -832,10 +903,10 @@ class _NewRidePageState extends State<NewRidePage> {
                     onPressed: isFormComplete()
                         ? () {
                       if (typeOfRide == 'request') {
-                        if (selectYourDestination=='toMEU'){
+                        if (_direction==true){
                           _createRequestToMeu(accessToken);
-                        }else{
-                          _createRequestFromMeu(accessToken);
+                        }else{if(_direction==false){
+                          _createRequestFromMeu(accessToken);}
                         }
 
 
@@ -849,10 +920,10 @@ class _NewRidePageState extends State<NewRidePage> {
                         //   )),
                         // );
                       } else if (typeOfRide == 'offer') {
-                        if (selectYourDestination=='toMEU'){
+                        if (_direction==true){
                           _createOfferToMeu(accessToken);
-                        }else {
-                          _createOfferFromMeu(accessToken);
+                        }else {if(_direction==false){
+                          _createOfferFromMeu(accessToken);}
                         }
 
                         // Navigator.push(
@@ -887,22 +958,7 @@ class _NewRidePageState extends State<NewRidePage> {
     );
   }
 
-  // void _getCurrentLocation() async {
-  //   Position position = await Geolocator.getCurrentPosition(
-  //     desiredAccuracy: LocationAccuracy.high,
-  //   );
-  //   List<Placemark> placemarks = await placemarkFromCoordinates(
-  //     position.latitude,
-  //     position.longitude,
-  //   );
-  //   Placemark placemark = placemarks[0];
-  //
-  //   setState(() {
-  //     _locationController.text =
-  //     'Latitude: ${position.latitude} Longitude: ${position.longitude}';
-  //     //_destinationController.text = placemark.name! + ', ' + placemark.locality!;
-  //   });
-  // }
+
 
   Future<void> _createRequestToMeu(accessToken) async {
 
@@ -942,6 +998,13 @@ class _NewRidePageState extends State<NewRidePage> {
         // Request successful, do something if needed
         var responseData = jsonDecode(response.body);
         print(responseData);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RideOffersPage(rideOffers: _createRideOffersList(responseData)),
+          ),
+        );
+
       }
       else {
         // Request failed, handle the error
@@ -992,6 +1055,12 @@ class _NewRidePageState extends State<NewRidePage> {
         // Request successful, do something if needed
         var responseData = jsonDecode(response.body);
         print(responseData);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RideOffersPage(rideOffers: _createRideOffersList(responseData)),
+          ),
+        );
       }
       else {
         // Request failed, handle the error
@@ -1047,6 +1116,12 @@ class _NewRidePageState extends State<NewRidePage> {
         // Request successful, do something if needed
         var responseData = jsonDecode(response.body);
         print(responseData);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RideRequestsPage(rideRequests: _createRideRequestsList(responseData)),
+          ),
+        );
       }
       else {
         // Request failed, handle the error
@@ -1100,7 +1175,15 @@ class _NewRidePageState extends State<NewRidePage> {
         // Request successful, do something if needed
         var responseData = jsonDecode(response.body);
         print(responseData);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RideRequestsPage(rideRequests: _createRideRequestsList(responseData)),
+          ),
+        );
+
       }
+
       else {
         // Request failed, handle the error
         var responseData = jsonDecode(response.body);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:native_notify/native_notify.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'home_page.dart';
@@ -6,6 +7,8 @@ import 'login.dart';
 import 'EditProfilePage.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  NativeNotify.initialize(3124, 'bkrvpzyobJBPbiDkW60jbd', null, null);
   runApp(MyApp());
 }
 

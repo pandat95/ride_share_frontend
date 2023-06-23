@@ -6,13 +6,50 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 
+
+
+class PostOffer {
+  final int id;
+  final String title;
+  final String description;
+  final String DateTime;
+  final int studentID;
+  final String first_name;
+  final String last_name;
+  final String car;
+  final String model;
+  final String color;
+  final String platesNumber;
+  final int seats;
+  // Add other necessary fields
+
+  PostOffer({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.DateTime,
+    required this.studentID,
+    required this.first_name,
+    required this.last_name,
+    required this.car,
+    required this.model,
+    required this.color,
+    required this.platesNumber,
+    required this.seats,
+
+    // Initialize other fields in the constructor
+  });
+}
+
 class Post {
   final int id;
   final String title;
   final String description;
   final String DateTime;
   final int studentID;
-  // Add other necessary fields
+  final String first_name;
+  final String last_name;
+
 
   Post({
     required this.id,
@@ -20,9 +57,18 @@ class Post {
     required this.description,
     required this.DateTime,
     required this.studentID,
+    required this.first_name,
+    required this.last_name,
+
 
     // Initialize other fields in the constructor
   });
+}
+class BoardData {
+  final List<PostOffer> postOffers;
+  final List<Post> posts;
+
+  BoardData({required this.postOffers, required this.posts});
 }
 
 class Board extends StatefulWidget {
@@ -42,7 +88,8 @@ class _BoardState extends State<Board> {
 
 
 
-  Future<List<Post>> fetchPosts() async {
+  Future<BoardData> fetchPosts() async {
+
     try {
       final OfferResponse = await http.get(
         Uri.parse('http://192.168.1.77:8000/api/PostRideOffer/index'),
@@ -68,20 +115,29 @@ class _BoardState extends State<Board> {
         final List<dynamic> requestData= jsonDecode(RequestResponse.body);
         print(offerData);
         // Assuming responseData is a list of posts, extract the necessary information
+        List<PostOffer> postOffers = [];
         List<Post> posts = [];
         final currentUserID = Provider.of<UserProvider>(context, listen: false).stu_id;
+
         for (var postJson in offerData) {
-          Post post = Post(
+          PostOffer postOffer = PostOffer(
             id: postJson['id'],
             title: postJson['title'],
             description: postJson['subtitle'],
             DateTime: postJson['DateTime'],
-              studentID:postJson['studentID']
+              studentID:postJson['studentID'],
+              first_name:postJson['FName'],
+              last_name: postJson['LName'],
+            car: postJson['carCompany'],
+            color: postJson['color'],
+            model: postJson['model'],
+            seats: postJson['seats'],
+            platesNumber: postJson['platesNumber'],
             // Extract other fields as needed
           );
 
-          if (post.studentID != currentUserID) {
-            posts.add(post);
+          if (postOffer.studentID != currentUserID) {
+            postOffers.add(postOffer);
           }
         }
         for (var postJson in requestData) {
@@ -90,7 +146,9 @@ class _BoardState extends State<Board> {
               title: postJson['title'],
               description: postJson['subtitle'],
               DateTime: postJson['DateTime'],
-              studentID:postJson['studentID']
+              studentID:postJson['studentID'],
+              first_name:postJson['FName'],
+              last_name: postJson['LName'],
             // Extract other fields as needed
           );
 
@@ -98,7 +156,7 @@ class _BoardState extends State<Board> {
             posts.add(post);
           }
         }
-        return posts;
+        return BoardData(postOffers: postOffers,posts: posts);
 
       } else {
         // Request failed, handle the error
@@ -111,7 +169,7 @@ class _BoardState extends State<Board> {
       print('An error occurred. Please try again.');
     }
     // Return an empty list if there was an error or no posts were retrieved
-    return [];
+    return BoardData(postOffers: [], posts: []);
   }
   @override
   void initState() {
@@ -139,42 +197,121 @@ class _BoardState extends State<Board> {
           ),
           Divider(),
           Expanded(
-            child: FutureBuilder<List<Post>>(
+            child: FutureBuilder<BoardData>(
               future: fetchPosts(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  final posts = snapshot.data!;
-                  if (posts.isNotEmpty) {
+                  final boardData = snapshot.data!;
+                  final postOffers = boardData.postOffers;
+                  final posts = boardData.posts;
+                  final List<dynamic> combinedList = [];
+                  combinedList.addAll(postOffers.map((Offer)=>Offer as dynamic));
+                  combinedList.addAll(posts.map((post)=>post as dynamic));
+
+                  // Use postOffers and posts as needed
+                  // ...
+                  if (postOffers.isNotEmpty || posts.isNotEmpty) {
                     return ListView.builder(
-                      itemCount: posts.length,
+                      itemCount: combinedList.length,
                       itemBuilder: (context, index) {
-                        final post = posts[index];
+                        final item = combinedList[index];
+
+                        if(item is PostOffer ){
+                          final postOffer=item;
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PostDetailsPage(post: post),
+                                builder: (context) =>
+                                    PostOfferDetailsPage(postOffer: item),
                               ),
                             );
+
                           },
                           child: ListTile(
-                            title: Text(post.title),
+                            title: Text(postOffer.title),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(post.description),
-                                Text('ID: ${post.id}'),
-                                Text('DateTime: ${post.DateTime}'),
+                                Text(postOffer.description),
+                                Text('ID: ${postOffer.id}'),
+                                Text('DateTime: ${postOffer.DateTime}'),
+
                                 // Add additional Text widgets or other widgets as needed
                               ],
                             ),
                             // Display other post details as needed
                           ),
-                        );
+                        );}else if (item is Post){
+                          final post=item;
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PostDetailsPage(post: item),
+                                ),
+                              );
+
+                            },
+                            child: ListTile(
+                              title: Text(post.title),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(post.description),
+                                  Text('ID: ${post.id}'),
+                                  Text('DateTime: ${post.DateTime}'),
+
+                                  // Add additional Text widgets or other widgets as needed
+                                ],
+                              ),
+                              // Display other post details as needed
+                            ),
+                          );
+                        }
                       },
                     );
-                  } else {
+                  }
+
+
+                  // if (posts.isNotEmpty) {
+                  //   return ListView.builder(
+                  //     itemCount: posts.length,
+                  //     itemBuilder: (context, index) {
+                  //       final post = posts[index];
+                  //       return GestureDetector(
+                  //         onTap: () {
+                  //           Navigator.push(
+                  //             context,
+                  //             MaterialPageRoute(
+                  //               builder: (context) =>
+                  //                   PostDetailsPage(post: post),
+                  //             ),
+                  //           );
+                  //
+                  //         },
+                  //         child: ListTile(
+                  //           title: Text(post.title),
+                  //           subtitle: Column(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             children: [
+                  //               Text(post.description),
+                  //               Text('ID: ${post.id}'),
+                  //               Text('DateTime: ${post.DateTime}'),
+                  //
+                  //               // Add additional Text widgets or other widgets as needed
+                  //             ],
+                  //           ),
+                  //           // Display other post details as needed
+                  //         ),
+                  //       );
+                  //     },
+                  //   );
+                  // }
+                  else {
                     return Center(
                       child: Text(
                         _isFilterApplied
@@ -196,9 +333,11 @@ class _BoardState extends State<Board> {
                     child: CircularProgressIndicator(),
                   );
                 }
+
               },
             ),
           ),
+
 
           Divider(),
           Container(
@@ -584,13 +723,14 @@ class PostDetailsPage extends StatelessWidget {
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 Text(
-                  'Post Title:',
+                  'Post Type:',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18, // Increase the font size as desired
@@ -611,7 +751,7 @@ class PostDetailsPage extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Post Description:',
+                  'Direction:',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18, // Increase the font size as desired
@@ -624,6 +764,29 @@ class PostDetailsPage extends StatelessWidget {
                     fontSize: 18, // Increase the font size as desired
                   ),
                 ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'DateTime:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  post.DateTime,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
               ],
             ),
           ),
@@ -645,6 +808,30 @@ class PostDetailsPage extends StatelessWidget {
                     fontSize: 18, // Increase the font size as desired
                   ),
                 ),
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Name:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '${post.first_name} ${post.last_name}',
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
               ],
             ),
           ),
@@ -676,6 +863,405 @@ class PostDetailsPage extends StatelessWidget {
 }
 
 
+
+
+
+
+class PostOfferDetailsPage extends StatelessWidget {
+  final PostOffer postOffer;
+
+
+  PostOfferDetailsPage({required this.postOffer});
+  Future<void> acceptPost(accessToken, BuildContext context) async {
+    try {
+      if (postOffer.title == 'Ride Offer') {
+        final response = await http.post(
+          Uri.parse('http://192.168.1.77:8000/api/PostRideOffer/${postOffer.id}/accept'),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          // Request successful, handle the response if needed
+          var responseData = jsonDecode(response.body);
+          print('Ride Offer post accepted successfully');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Post Accepted'),
+                content: Text('$responseData'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          // Request failed, handle the error
+          var responseData = jsonDecode(response.body);
+          print('Error accepting Ride Offer post: $responseData');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('Error accepting Ride Offer post: $responseData'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        final response = await http.post(
+          Uri.parse('http://192.168.1.77:8000/api/PostRideRequest/${postOffer.id}/accept'),
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          // Request successful, handle the response if needed
+          var responseData = jsonDecode(response.body);
+          print('Ride Request post accepted successfully');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Post Accepted'),
+                content: Text('$responseData'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          // Request failed, handle the error
+          var responseData = jsonDecode(response.body);
+          print('Error accepting Ride Request post: $responseData');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('Error accepting Ride Request post: $responseData'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+    } catch (e) {
+      // Error occurred, handle the exception
+      print('An error occurred. Please try again.');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('An error occurred. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String accessToken = Provider.of<UserProvider>(context).token;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Post Details'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Post Type:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.title,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Direction:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.description,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'DateTime:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.DateTime,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Student:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.studentID.toString(),
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Name:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '${postOffer.first_name} ${postOffer.last_name}',
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Car:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.car,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Model:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.model,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Color:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.color,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'plates Number:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.platesNumber,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'seats:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  postOffer.seats.toString(),
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+
+
+              ],
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: ElevatedButton(
+                  onPressed: () {
+                    acceptPost(accessToken, context);
+
+                  },
+                  child: Text(
+                    'Accept',
+                    style: TextStyle(
+                      fontSize: 18, // Increase the font size as desired
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 
 
