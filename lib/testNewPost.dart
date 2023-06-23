@@ -10,6 +10,7 @@ import 'user_provider.dart';
 import 'MapSelection.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:last_chance/Board.dart';
 
 
 
@@ -27,6 +28,9 @@ class _NewPostPageState extends State<NewPostPage> {
 
 
   GoogleMapController? mapController;
+
+  double MeuLat=31.80924111250302;
+  double MeuLong=35.91942630708218;
   LatLng? selectedLocation;
   bool? _postType;
   bool? _direction;
@@ -35,6 +39,7 @@ class _NewPostPageState extends State<NewPostPage> {
   bool _isNonSmokerSelected = false;
   bool _isEatingSelected = false;
   bool _isDrinkingSelected = false;
+
   TextEditingController _locationController = TextEditingController();
   TextEditingController _destinationController = TextEditingController();
   TextEditingController _carCompanyController = TextEditingController();
@@ -59,10 +64,14 @@ class _NewPostPageState extends State<NewPostPage> {
 
     );
 
+
     if (result != null) {
       setState(() {
         _locationController.text='Lat: ${result.latitude} , Lon: ${result.longitude}';
         //selectedLocation = result;
+        //_destinationController.text='${result.latitude} , ${result.longitude}';
+
+
       });
     }
   }
@@ -85,7 +94,10 @@ class _NewPostPageState extends State<NewPostPage> {
     if (result != null) {
       setState(() {
         _destinationController.text='Lat: ${result.latitude} , Lon: ${result.longitude}';
+        print('Lat: ${result.latitude} , Lon: ${result.longitude}');
         //selectedLocation = result;
+        //_locationController.text='${result.latitude} , ${result.longitude}';
+
       });
     }
   }
@@ -155,13 +167,13 @@ class _NewPostPageState extends State<NewPostPage> {
                         setState(() {
                           _direction = false;
                           if (_direction == false) {
-                            _locationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
+                            _locationController.text = 'Middle East University';
                             _destinationController.text='';
 
                           } else {
                             _locationController.text='';
 
-                            _destinationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
+                            _destinationController.text = 'Middle East University';
                           }
                         });
                       },
@@ -173,13 +185,13 @@ class _NewPostPageState extends State<NewPostPage> {
                         setState(() {
                           _direction = true;
                           if (_direction == false) {
-                            _locationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
+                            _locationController.text = 'Middle East University';
                             _destinationController.text='';
 
                           } else {
                             _locationController.text='';
 
-                            _destinationController.text = 'https://goo.gl/maps/xVaurK5RZmPFciL5A';
+                            _destinationController.text = 'Middle East University';
                           }
                         });
                       },
@@ -477,55 +489,55 @@ class _NewPostPageState extends State<NewPostPage> {
     } else {
       Map<String, dynamic> postData = {
 
-      'title': 'Ride Request',
-      'Subtitle': _direction == false ? 'From MEU' : 'To MEU',
-      'driver_gender': _selectedGender!,
-      'DateTime': _selectedDateTime.toString(),
-      'smoking':_isSmokerSelected == true ? true : false,
-      //'nonSmoker': _isNonSmokerSelected,
-      'eating': _isEatingSelected == true ? true : false,
-      //'noEatingDrinking': _isDrinkingSelected,
-      'pickup_loc_latitude': _locationController.text,
-      'pickup_loc_longitude': 'empty',
-      'destination_latitude': _destinationController.text,
-      'destination_longitude': 'empty',
+        'title': 'Ride Request',
+        'Subtitle': _direction == false ? 'From MEU' : 'To MEU',
+        'driver_gender': _selectedGender!,
+        'DateTime': _selectedDateTime.toString(),
+        'smoking':_isSmokerSelected == true ? true : false,
+        //'nonSmoker': _isNonSmokerSelected,
+        'eating': _isEatingSelected == true ? true : false,
+        //'noEatingDrinking': _isDrinkingSelected,
+        'pickup_loc_latitude': _locationController.text,
+        'pickup_loc_longitude': 'empty',
+        'destination_latitude': _destinationController.text,
+        'destination_longitude': 'empty',
 
-    };
-    print(postData);
+      };
+      print(postData);
 
-    try {
-      // Send the POST request to the backend
+      try {
+        // Send the POST request to the backend
 
 
-      print(accessToken);
-      final response = await http.post(
-        Uri.parse('http://192.168.1.77:8000/api/PostRideRequest'),
-        // Replace with your backend URL
+        print(accessToken);
+        final response = await http.post(
+          Uri.parse('http://192.168.1.77:8000/api/PostRideRequest'),
+          // Replace with your backend URL
 
-        headers: {'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',},
-        body: jsonEncode(postData),
+          headers: {'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',},
+          body: jsonEncode(postData),
 
-      );
+        );
 
-      if (response.statusCode == 200) {
-        // Request successful, do something if needed
-        var responseData = jsonDecode(response.body);
-        print(responseData);
+        if (response.statusCode == 200) {
+          // Request successful, do something if needed
+          var responseData = jsonDecode(response.body);
+          print(responseData);
 
-      } else {
-        // Request failed, handle the error
-        var responseData = jsonDecode(response.body);
-        print(responseData);
+        } else {
+          // Request failed, handle the error
+          var responseData = jsonDecode(response.body);
+          print(responseData);
+        }
+      } catch (e) {
+        // Error occurred, handle the exception
+        print('An error occurred. Please try again.');
       }
-    } catch (e) {
-      // Error occurred, handle the exception
-      print('An error occurred. Please try again.');
-    }
     }
   }
 
- }
+}
 
 class _getLocation {
 }

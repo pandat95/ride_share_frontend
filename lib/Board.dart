@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+//import 'testNewPost.dart';
 
 
 
@@ -21,6 +22,10 @@ class PostOffer {
   final String color;
   final String platesNumber;
   final int seats;
+  final String pickupLat;
+  final String pickupLong;
+  final String destLat;
+  final String destLong;
   // Add other necessary fields
 
   PostOffer({
@@ -36,6 +41,10 @@ class PostOffer {
     required this.color,
     required this.platesNumber,
     required this.seats,
+    required this.pickupLat,
+    required this.pickupLong,
+    required this.destLat,
+    required this.destLong,
 
     // Initialize other fields in the constructor
   });
@@ -49,6 +58,10 @@ class Post {
   final int studentID;
   final String first_name;
   final String last_name;
+  final String pickupLat;
+  final String pickupLong;
+  final String destLat;
+  final String destLong;
 
 
   Post({
@@ -59,6 +72,10 @@ class Post {
     required this.studentID,
     required this.first_name,
     required this.last_name,
+    required this.pickupLat,
+    required this.pickupLong,
+    required this.destLat,
+    required this.destLong,
 
 
     // Initialize other fields in the constructor
@@ -133,6 +150,10 @@ class _BoardState extends State<Board> {
             model: postJson['model'],
             seats: postJson['seats'],
             platesNumber: postJson['platesNumber'],
+            pickupLat: postJson['pickupLat'],
+            pickupLong: postJson['pickupLong'],
+            destLat: postJson['destLat'],
+            destLong: postJson['destLong'],
             // Extract other fields as needed
           );
 
@@ -149,6 +170,10 @@ class _BoardState extends State<Board> {
               studentID:postJson['studentID'],
               first_name:postJson['FName'],
               last_name: postJson['LName'],
+            pickupLat: postJson['pickupLat'],
+            pickupLong: postJson['pickupLong'],
+            destLat: postJson['destLat'],
+            destLong: postJson['destLong'],
             // Extract other fields as needed
           );
 
@@ -772,6 +797,48 @@ class PostDetailsPage extends StatelessWidget {
             child: Row(
               children: [
                 Text(
+                  'Pick-Up Location:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '${post.pickupLat} , ${post.pickupLong}',
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Destination:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '${post.destLat} , ${post.destLong}',
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
                   'DateTime:',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -1046,6 +1113,48 @@ class PostOfferDetailsPage extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   postOffer.description,
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Pick-Up Location:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '${postOffer.pickupLat} , ${postOffer.pickupLong}',
+                  style: TextStyle(
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Text(
+                  'Destination:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18, // Increase the font size as desired
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '${postOffer.destLat} , ${postOffer.destLong}',
                   style: TextStyle(
                     fontSize: 18, // Increase the font size as desired
                   ),
