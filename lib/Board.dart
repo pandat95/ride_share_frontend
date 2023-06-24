@@ -89,6 +89,7 @@ class BoardData {
 }
 
 class Board extends StatefulWidget {
+
   @override
   _BoardState createState() => _BoardState();
 }
@@ -204,7 +205,9 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+
       appBar: AppBar(
         title: Text('Board'),
         actions: [],
@@ -302,40 +305,7 @@ class _BoardState extends State<Board> {
                   }
 
 
-                  // if (posts.isNotEmpty) {
-                  //   return ListView.builder(
-                  //     itemCount: posts.length,
-                  //     itemBuilder: (context, index) {
-                  //       final post = posts[index];
-                  //       return GestureDetector(
-                  //         onTap: () {
-                  //           Navigator.push(
-                  //             context,
-                  //             MaterialPageRoute(
-                  //               builder: (context) =>
-                  //                   PostDetailsPage(post: post),
-                  //             ),
-                  //           );
-                  //
-                  //         },
-                  //         child: ListTile(
-                  //           title: Text(post.title),
-                  //           subtitle: Column(
-                  //             crossAxisAlignment: CrossAxisAlignment.start,
-                  //             children: [
-                  //               Text(post.description),
-                  //               Text('ID: ${post.id}'),
-                  //               Text('DateTime: ${post.DateTime}'),
-                  //
-                  //               // Add additional Text widgets or other widgets as needed
-                  //             ],
-                  //           ),
-                  //           // Display other post details as needed
-                  //         ),
-                  //       );
-                  //     },
-                  //   );
-                  // }
+
                   else {
                     return Center(
                       child: Text(
@@ -635,6 +605,7 @@ class PostDetailsPage extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
+
                     },
                     child: Text('OK'),
                   ),
@@ -1377,6 +1348,7 @@ class PostOfferDetailsPage extends StatelessWidget {
 
 void main() {
   runApp(MaterialApp(
+
     home: Board(),
   ));
 }

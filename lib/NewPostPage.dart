@@ -10,6 +10,7 @@ import 'user_provider.dart';
 import 'MapSelection.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'home_page.dart';
 
 
 
@@ -460,10 +461,29 @@ class _NewPostPageState extends State<NewPostPage> {
         );
 
         if (response.statusCode == 200) {
-          // Request successful, do something if needed
+          // Request successful, handle the response if needed
           var responseData = jsonDecode(response.body);
-          print(responseData);
-
+          print('Ride Offer post created successfully');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Post Created'),
+                content: Text('$responseData'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
         }
         else {
           // Request failed, handle the error
@@ -509,10 +529,29 @@ class _NewPostPageState extends State<NewPostPage> {
       );
 
       if (response.statusCode == 200) {
-        // Request successful, do something if needed
+        // Request successful, handle the response if needed
         var responseData = jsonDecode(response.body);
-        print(responseData);
-
+        print('Ride Request post created successfully');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Post Created'),
+              content: Text('$responseData'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()));
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       } else {
         // Request failed, handle the error
         var responseData = jsonDecode(response.body);

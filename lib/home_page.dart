@@ -138,13 +138,7 @@ class HomePage extends StatelessWidget {
                   );
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.language),
-                title: Text('Change Language'),
-                onTap: () {
-                  // TODO: Implement language change logic
-                },
-              ),
+
               ListTile(
                 leading: Icon(Icons.info),
                 title: Text('About'),

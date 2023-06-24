@@ -1,11 +1,11 @@
 import 'dart:ffi';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:last_chance/RequestPage.dart';
 import 'OfferPage.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -58,17 +58,62 @@ class NewRidePage extends StatefulWidget {
 }
 class RideRequest {
   final int id;
+  final int studentID;
+  final String FName;
+  final String LName;
+  final String pickupLat;
+  final String pickupLong;
+  final String destLat;
+  final String destLong;
+  final String phone;
   // Add other properties and methods of the RideRequest class
+RideRequest({
+  required this.id,
+  required this.studentID,
+  required this.FName,
+  required this.LName,
+  required this.pickupLat,
+  required this.pickupLong,
+  required this.destLat,
+  required this.destLong,
+ required this.phone,
+});
 
-  RideRequest({required this.id});
 }
 
 
 class RideOffer {
   final int id;
+  final int studentID;
+  final String FName;
+  final String LName;
+  final String pickupLat;
+  final String pickupLong;
+  final String destLat;
+  final String destLong;
+  final String phone;
+  final String? carCompany;
+  final String? model;
+  final String? color;
+  final String? platesNumber;
   // Add other properties and methods of the RideRequest class
 
-  RideOffer({required this.id});
+  RideOffer({
+    required this.id,
+    required this.studentID,
+    required this.FName,
+    required this.LName,
+    required this.pickupLat,
+    required this.pickupLong,
+    required this.destLat,
+    required this.destLong,
+    required this.phone,
+    required this.carCompany,
+    required this.model,
+    required this.color,
+    required this.platesNumber,
+
+  });
 }
 
 
@@ -79,7 +124,17 @@ class _NewRidePageState extends State<NewRidePage> {
     List<RideRequest> rideRequests = [];
 
     for (var request in responseData) {
-      RideRequest rideRequest = RideRequest(id: request['id']);
+      RideRequest rideRequest = RideRequest(
+          id: request['id'],
+          studentID:request['studentID'],
+        FName: request['FName'],
+        LName: request['LName'],
+        pickupLat: request['pickupLat'],
+        pickupLong: request['pickupLong'],
+        destLat: request['destLat'],
+        destLong: request['destLong'],
+        phone: request['phone'],
+      );
       // Add other properties to the rideRequest object as needed
       rideRequests.add(rideRequest);
     }
@@ -93,7 +148,21 @@ class _NewRidePageState extends State<NewRidePage> {
     List<RideOffer> rideOffers = [];
 
     for (var offer in responseData) {
-      RideOffer rideOffer = RideOffer(id: offer['id']);
+      RideOffer rideOffer = RideOffer(
+          id: offer['id'],
+        studentID:offer['studentID'],
+        FName: offer['FName'],
+        LName: offer['LName'],
+        pickupLat: offer['pickupLat'],
+        pickupLong: offer['pickupLong'],
+        destLat: offer['destLat'],
+        destLong: offer['destLong'],
+        phone: offer['phone'],
+          carCompany: offer['carCompany'],
+        color: offer['color'],
+        model: offer['model'],
+        platesNumber: offer['platesNumber']
+      );
       // Add other properties to the rideRequest object as needed
       rideOffers.add(rideOffer);
     }

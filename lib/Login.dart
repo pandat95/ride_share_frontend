@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
         title: Text('Login'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -133,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                 _errorText,
                 style: TextStyle(color: Colors.red),
               ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 8.0),
             TextField(
               controller: _passwordController,
               obscureText: !_passwordVisible,
@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                 errorText: _errorText.isNotEmpty ? 'Invalid email or password' : null,
               ),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 5.0),
             GestureDetector(
               onTap: () {
                 // Navigator.push(
@@ -168,12 +168,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 8.0),
             ElevatedButton(
               onPressed: _login,
               child: Text('Login'),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 8.0),
             GestureDetector(
               onTap: () {
                 Navigator.push(
